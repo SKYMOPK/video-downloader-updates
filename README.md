@@ -2,9 +2,17 @@
 
 Windows 繁體中文影音下載器，支援 YouTube 一般影片與 Shorts，下載影片或音訊到電腦。
 
-## 下載與安裝
+## 下載 App
 
-前往 [最新正式版本](https://github.com/SKYMOPK/video-downloader-updates/releases/latest)，下載名稱結尾為 `win64-setup.exe` 的安裝檔。
+[![下載 Windows 版](assets/download-windows.svg)](https://github.com/SKYMOPK/video-downloader-updates/releases/download/v0.2.0/VideoDownloader-0.2.0-win64-setup.exe)
+
+**點上方藍色按鈕，下載後開啟安裝檔即可。**
+
+目前版本：**0.2.0** · 一般使用者只需下載這一個安裝檔，不必下載 ZIP、原始碼或其他檔案。
+
+安裝完成後，日後可在 App 內按「檢查更新」。
+
+[查看更新內容與其他版本](https://github.com/SKYMOPK/video-downloader-updates/releases/latest)
 
 需要 Windows 10（組建 19041 以上）或 Windows 11，x64。安裝後不需要另裝 Python。
 
