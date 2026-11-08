@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+build/
+dist/
+tools/*.exe
+tools/*.zip
+tools/*.tmp
+evidence/*.mp4
+evidence/*.webm
+work-*/
+build-tools/
+evidence/*downloads/
+evidence-source.json
+evidence-channel.json
+evidence-shorts.json

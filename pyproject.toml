@@ -1,0 +1,13 @@
+[project]
+name = "video-downloader"
+version = "0.2.0"
+description = "Traditional Chinese Windows video downloader"
+requires-python = ">=3.12,<3.13"
+dependencies = ["PySide6-Essentials==6.12.0"]
+
+[dependency-groups]
+dev = ["pyinstaller>=6.16,<7", "pytest>=8,<10", "Pillow>=12,<14", "psutil>=7,<9"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
