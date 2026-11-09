@@ -1,20 +1,20 @@
 # Video Downloader
 
-Windows 繁體中文影音下載器，支援 YouTube 一般影片與 Shorts，下載影片或音訊到電腦。
+Windows 繁體中文影音與文件工具：下載 YouTube／Shorts 影音，也能在本機轉換文件與圖片。
 
 ## 下載 App
 
-[![下載 Windows 版](assets/download-windows.svg)](https://github.com/SKYMOPK/video-downloader-updates/releases/download/v0.2.0/VideoDownloader-0.2.0-win64-setup.exe)
+[![下載 Windows 版](assets/download-windows.svg)](https://github.com/SKYMOPK/video-downloader-updates/releases/download/v0.3.1/VideoDownloader-0.3.1-win64-setup.exe)
 
 **點上方藍色按鈕，下載後開啟安裝檔即可。**
 
-目前版本：**0.2.0** · 一般使用者只需下載這一個安裝檔，不必下載 ZIP、原始碼或其他檔案。
+目前版本：**0.3.1** · 一般使用者只需下載這一個安裝檔，不必下載 ZIP、原始碼或其他檔案。
 
 安裝完成後，日後可在 App 內按「檢查更新」。
 
 [查看更新內容與其他版本](https://github.com/SKYMOPK/video-downloader-updates/releases/latest)
 
-需要 Windows 10（組建 19041 以上）或 Windows 11，x64。安裝後不需要另裝 Python。
+需要 Windows 10（組建 19041 以上）或 Windows 11，x64。安裝後不需要另裝 Python 或 Office。
 
 ## App 更新
 
@@ -35,7 +35,20 @@ Windows 繁體中文影音下載器，支援 YouTube 一般影片與 Shorts，�
 - 任務佇列、取消、重試、續傳暫存、完成通知及輸出驗證。
 - 網址欄支援 Ctrl+V、右鍵貼上與自動解析。
 
-文件格式轉換尚未加入。來源平台限制可能影響可下載性，請僅處理你有權下載的內容。
+### 文件轉換
+
+- 拖曳或選擇檔案，自動辨識格式，只顯示可用的輸出選項。
+- Word、Excel、PowerPoint 與 OpenDocument 文件轉 PDF。
+- Word、ODT、RTF 與 TXT 的合理格式轉換。
+- 圖片轉檔、調整順序並合併 PDF；PDF 轉逐頁圖片或擷取純文字。
+- 批次處理、取消、結果驗證及同名保護；原始檔案保留。
+- 轉換結束會清除已空的暫存資料夾，旁邊的其他檔案不會刪除。
+
+文件轉換在本機進行，無須上傳文件或另裝 Office。第一次使用 Office 轉換時會在背景準備內建引擎，約需 1.8 GB 可用空間，開啟 App 不等待此步驟。
+
+單檔上限 **100 MB**、純文字 **10 MB**，PDF／圖片最多 **200 頁**。不提供 PDF 轉 Word、OCR、加密文件、巨集與動畫轉換。特殊字型與複雜版面可能有差異。
+
+來源平台限制可能影響影音可下載性，請僅處理你有權下載的內容。
 
 ## 發布檔案
 
