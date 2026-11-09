@@ -19,4 +19,9 @@ def qt():
 @pytest.fixture(autouse=True)
 def isolate_persistence(tmp_path,monkeypatch):
     import app.storage as storage
+    import app.documents as documents
+    import app.document_engine as document_engine
     monkeypatch.setattr(storage,"DATA",tmp_path/"app-data")
+    monkeypatch.setattr(documents,"DATA",tmp_path/"app-data")
+    monkeypatch.setattr(document_engine,"DATA",tmp_path/"app-data")
+    monkeypatch.setenv('VD_DATA_DIR',str(tmp_path/'app-data'))

@@ -6,6 +6,11 @@ import os
 from pathlib import Path
 import sys
 
+# Conversion runs in a separate, killable process before loading the GUI.
+if len(sys.argv) == 3 and sys.argv[1] == '--convert-job':
+    from app.document_engine import run_job
+    raise SystemExit(run_job(sys.argv[2]))
+
 from PySide6.QtCore import QLockFile, QTimer, QUrl, QObject, qInstallMessageHandler
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
@@ -23,6 +28,7 @@ def main():
     parser.add_argument("--capture", default="")
     parser.add_argument("--quit-after", type=int, default=0)
     parser.add_argument("--update-job", default="")
+    parser.add_argument("--tool", choices=("video", "documents"), default="video")
     args = parser.parse_args()
     DATA.mkdir(parents=True, exist_ok=True)
     handler = RotatingFileHandler(DATA / "application.log", maxBytes=1_000_000, backupCount=2, encoding="utf-8")
@@ -47,6 +53,7 @@ def main():
         logging.error("QML could not be loaded")
         return 1
     window = engine.rootObjects()[0]
+    window.setProperty("currentTool", args.tool)
     if os.name == "nt":
         # Preserve native Windows controls, snap, resize and keyboard behavior.
         enabled = ctypes.c_int(1)

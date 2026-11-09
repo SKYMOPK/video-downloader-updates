@@ -21,10 +21,11 @@ if __name__=="__main__":
     paths=[]
     for directory in ("app","qml","assets","scripts","tests","docs","packaging"):
         paths.extend(p for p in (ROOT/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts)
-    for name in ("main.py","pyproject.toml","uv.lock","requirements-lock.txt","README.md","THIRD_PARTY_NOTICES.md","VideoDownloader.spec","installer.iss",".gitignore",".python-version","tools/manifest.json","tools/LICENSE"):
+    for name in ("main.py","pyproject.toml","uv.lock","requirements-lock.txt","README.md","THIRD_PARTY_NOTICES.md","VideoDownloader.spec","installer.iss",".gitignore",".python-version","tools/manifest.json","tools/office-manifest.json","tools/LICENSE"):
         paths.append(ROOT/name)
     evidence_names=("pytest.txt","compatibility.json","integration-video.json","integration-audio.json","ui-acceptance.json","update-acceptance.json",
-                    "package-acceptance.json","package-interruption.json","performance-probe.json","installed-output-validation.json","final-package-smoke.json","input-acceptance.json","refinement-packaged.json","app-update-ui.json","app-update-integration.json","app-update-installer.json")
+                    "package-acceptance.json","package-interruption.json","performance-probe.json","installed-output-validation.json","final-package-smoke.json","input-acceptance.json","refinement-packaged.json","app-update-ui.json","app-update-integration.json","app-update-installer.json",
+                    "document-acceptance.json","document-package-acceptance.json","document-office-matrix.json","document-update-compatibility.json","pytest-documents.txt")
     def redact(value):
         if isinstance(value,str):return value.replace(str(ROOT),"<PROJECT>").replace(str(Path.home()),"<USER>")
         if isinstance(value,list):return [redact(v) for v in value]

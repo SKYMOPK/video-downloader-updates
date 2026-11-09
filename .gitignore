@@ -10,6 +10,8 @@ evidence/*.mp4
 evidence/*.webm
 work-*/
 build-tools/
+tools/office/
+tools/office-runtime.zip
 evidence/*downloads/
 evidence-source.json
 evidence-channel.json

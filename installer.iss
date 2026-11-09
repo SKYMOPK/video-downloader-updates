@@ -1,6 +1,6 @@
 #define AppName "Video Downloader"
 #ifndef AppVersion
-#define AppVersion "0.2.0"
+#define AppVersion "0.3.1"
 #endif
 [Setup]
 AppId={{0A065A63-454A-44CC-A06B-3B22BDCE2F18}

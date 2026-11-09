@@ -1,0 +1,7 @@
+{
+  "version": "26.8.2",
+  "source": "https://download.documentfoundation.org/libreoffice/stable/26.8.2/win/x86_64/LibreOffice_26.8.2_Win_x86-64.msi",
+  "artifact_sha256": "ff4b911403b67ee9e6249f820f9782c44bb32c94fdaa45b0da53a8e419e5307a",
+  "soffice_sha256": "4f133aba4d8db66122ec34bc17eeaa8b274cfa5ded03feb384953f6ae357d4cf",
+  "runtime_sha256": "2f08fb67b1230867c05d72f5e8d76b99afdbda5b14a4b7334ec5a8abd0ee075b"
+}

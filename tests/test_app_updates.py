@@ -124,6 +124,7 @@ def test_cancelled_download_never_becomes_installable(qt, tmp_path, monkeypatch)
 
 
 def test_red_dot_and_prompt_persist_without_repeated_dialog(qt, tmp_path, monkeypatch):
+    monkeypatch.setattr(module, "VERSION", "0.2.0")
     monkeypatch.setattr(module, "DATA", tmp_path)
     atomic_json(tmp_path / "app-update-state.json", {"release": release()})
     updates = module.AppUpdates()

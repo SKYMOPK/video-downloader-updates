@@ -16,6 +16,7 @@ from .process import ManagedProcess
 from .updater import UpdateWorker
 from .app_updates import AppUpdates
 from .release import VERSION
+from .documents import Documents
 
 STATES = {"queued": "等待中", "parsing": "解析中", "downloading": "下載中", "merging": "合併／封裝中",
           "converting": "轉換中", "verifying": "驗證中", "completed": "已完成", "failed": "失敗",
@@ -98,6 +99,10 @@ class Controller(QObject):
         self.save_timer.timeout.connect(self.persist)
         self.tray = QSystemTrayIcon(QIcon(str(ROOT / "assets" / "app.ico")), self)
         self.app_updates = AppUpdates(self)
+        self.document_controller = Documents(self, lambda: not self.closing and not self.app_updates.installPending)
+        self.document_controller.changed.connect(self.changed.emit)
+        self.document_controller.message.connect(self.message.emit)
+        self.document_controller.idle.connect(self._maybe_finish_shutdown)
         self.app_updates.changed.connect(self.changed.emit)
         self.app_updates.installReady.connect(self._quit_for_update)
         self.app_updates.settled.connect(self._maybe_finish_shutdown)
@@ -112,6 +117,8 @@ class Controller(QObject):
     def settings(self): return self._settings
     @Property(QObject, constant=True)
     def appUpdates(self): return self.app_updates
+    @Property(QObject, constant=True)
+    def documents(self): return self.document_controller
     @Property("QVariantMap", notify=changed)
     def media(self): return self._media
     @Property(bool, notify=changed)
@@ -137,7 +144,7 @@ class Controller(QObject):
     @Property(int, notify=changed)
     def taskCount(self): return len(self.model.items)
     @Property(int, notify=changed)
-    def activeCount(self): return sum(t["state"] in ACTIVE for t in self.model.items)
+    def activeCount(self): return sum(t["state"] in ACTIVE for t in self.model.items) + self.document_controller.activeCount
     @Property("QVariantMap", notify=changed)
     def versions(self): return self._versions
     @Property(bool, notify=changed)
@@ -472,6 +479,7 @@ class Controller(QObject):
         else: self.message.emit("儲存資料夾目前無法使用")
 
     def persist(self):
+        self.document_controller.persist()
         try:
             tasks = [t | {"diagnostic": redact(t.get("diagnostic", ""))} for t in self.model.items]
             atomic_json(DATA / "tasks.json", tasks)
@@ -592,7 +600,7 @@ class Controller(QObject):
         self.shutdownReady.emit()
 
     def _maybe_finish_shutdown(self):
-        if self.closing and not self.runners and not self.app_updates.busy and not self._update_busy:
+        if self.closing and not self.runners and not self.document_controller.worker and not self.app_updates.busy and not self._update_busy:
             self.shutdownReady.emit()
 
     @Slot()
@@ -603,6 +611,7 @@ class Controller(QObject):
         self.closing = True
         self.app_update_timer.stop()
         self.app_updates.cancel()
+        self.document_controller.shutdown()
         self.cancelParse()
         for task in self.model.items:
             if task["state"] == "queued": task.update(state="recoverable", detail="結束時尚未開始")

@@ -7,7 +7,7 @@ from PySide6.QtCore import QProcess, QProcessEnvironment, QObject, QTimer, Signa
 
 
 class Job:
-    def __init__(self):
+    def __init__(self, memory_limit=0):
         self.handle = None
         if os.name != "nt":
             return
@@ -31,6 +31,9 @@ class Job:
                         ("PeakProcessMemoryUsed", ctypes.c_size_t), ("PeakJobMemoryUsed", ctypes.c_size_t)]
         limits = Extended()
         limits.BasicLimitInformation.LimitFlags = 0x2000  # KILL_ON_JOB_CLOSE
+        if memory_limit:
+            limits.BasicLimitInformation.LimitFlags |= 0x200  # JOB_MEMORY
+            limits.JobMemoryLimit = int(memory_limit)
         if not self.handle or not kernel.SetInformationJobObject(self.handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)):
             self.close()
             raise OSError("無法建立工作程序隔離，請重新啟動程式")
@@ -59,7 +62,7 @@ class ManagedProcess(QObject):
     line = Signal(str)
     done = Signal(int, str)
 
-    def __init__(self, program, args, parent=None, timeout=180000):
+    def __init__(self, program, args, parent=None, timeout=180000, memory_limit=0):
         super().__init__(parent)
         self.proc = QProcess(self)
         self.proc.setProgram(str(program))
@@ -77,10 +80,11 @@ class ManagedProcess(QObject):
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self._timeout)
         self.timeout = timeout
+        self.memory_limit = memory_limit
 
     def start(self):
         try:
-            self.job = Job()
+            self.job = Job(self.memory_limit)
             self.proc.start()
             if self.timeout:
                 self.timer.start(self.timeout)

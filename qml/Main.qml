@@ -20,6 +20,7 @@ ApplicationWindow {
     palette.highlightedText: "#10223a"
     property bool allowClose: false
     property bool showAdvanced: false
+    property string currentTool: "video"
     onClosing: function(event) {
         if (!allowClose && !backend.requestClose()) { event.accepted = false; closeDialog.open() }
     }
@@ -40,7 +41,7 @@ ApplicationWindow {
             anchors.fill: parent; anchors.leftMargin: 32; anchors.rightMargin: 24; spacing: 12
             Rectangle { width: 32; height: 32; radius: 9; color: Theme.accentDark; Icon { anchors.centerIn: parent; name: "download"; width: 20; height: 20 } }
             Text { text: "Video Downloader"; color: Theme.text; font.pixelSize: 17; font.weight: Font.DemiBold }
-            Text { text: "影音下載工具"; color: Theme.muted; font.pixelSize: 12; Layout.leftMargin: 4 }
+            Text { text: "影音與文件工具"; color: Theme.muted; font.pixelSize: 12; Layout.leftMargin: 4 }
             Item { Layout.fillWidth: true }
             Text { text: backend.activeCount > 0 ? backend.activeCount + " 個任務處理中" : "本機執行"; color: backend.activeCount > 0 ? Theme.accent : Theme.muted; font.pixelSize: 12 }
             Item {
@@ -57,9 +58,17 @@ ApplicationWindow {
         }
     }
 
+    RowLayout {
+        id: toolNavigation
+        height: 56; anchors.top: parent.top; anchors.left: parent.left; anchors.leftMargin: 32; spacing: 8
+        VButton { text: "影音下載"; selected: win.currentTool === "video"; quiet: true; onClicked: win.currentTool = "video" }
+        VButton { objectName: "documentToolTab"; text: "文件轉換"; selected: win.currentTool === "documents"; quiet: true; onClicked: win.currentTool = "documents" }
+    }
+    DocumentPage { anchors.top: toolNavigation.bottom; anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right; visible: win.currentTool === "documents" }
     ScrollView {
         id: page
-        anchors.fill: parent
+        visible: win.currentTool === "video"
+        anchors.top: toolNavigation.bottom; anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right
         clip: true
         contentWidth: availableWidth
         ScrollBar.horizontal.policy: ScrollBar.AlwaysOff

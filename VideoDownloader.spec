@@ -1,14 +1,19 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import collect_data_files, copy_metadata
 
 root = Path(SPECPATH)
 datas = [(str(root / "qml"), "qml"), (str(root / "assets"), "assets"),
          (str(root / "app" / "release.json"), "app"),
          (str(root / "tools" / "manifest.json"), "tools"),
          (str(root / "tools" / "LICENSE"), "tools"),
+         (str(root / "tools" / "office-runtime.zip"), "tools"),
+         (str(root / "tools" / "office-manifest.json"), "tools"),
          (str(root / "THIRD_PARTY_NOTICES.md"), ".")]
 datas += collect_data_files("PySide6", subdir="qml", excludes=["**/objects-Debug/**", "**/objects-Release/**", "**/*.cpp", "**/*.obj", "**/*.pdb"])
+datas += collect_data_files("docx") + collect_data_files("pypdfium2")
+for package in ('Pillow','python-docx','lxml','pypdfium2','olefile'):
+    datas += copy_metadata(package)
 binaries = [(str(root / "tools" / name), "tools") for name in ("yt-dlp.exe", "deno.exe", "ffmpeg.exe", "ffprobe.exe")]
 binaries.append((str(root / "build" / "updater-dist" / "app-updater.exe"), "tools"))
 a = Analysis([str(root / "main.py")], pathex=[str(root)], binaries=binaries, datas=datas,

@@ -6,6 +6,9 @@
 
 - Qt / PySide6 / Shiboken6：Qt 公司與貢獻者；依實際模組採 LGPLv3 或其適用授權。使用動態 Qt libraries，未修改 Qt。授權與來源入口：[Qt licensing](https://www.qt.io/licensing/)、[Qt for Python source](https://code.qt.io/pyside/pyside-setup.git/)。發行物保留隨套件提供的授權文件，並允許依授權要求替換相容動態函式庫。不要對 Qt 元件加入限制使用者依其授權修改、替換或除錯的條款。
 - Python：Python Software Foundation License。[授權](https://docs.python.org/3/license.html)、[原始碼](https://www.python.org/downloads/source/)。
+- LibreOffice 26.8.2：The Document Foundation 與貢獻者；未修改的官方 Windows 執行引擎，以獨立程序使用。安裝包來源、SHA256 與封裝 SHA256 見 `tools/office-manifest.json`。完整隨附授權位於 `tools/office-runtime.zip` 內，準備引擎後亦保留在使用者資料夾。上游授權與來源：[LibreOffice licenses](https://www.libreoffice.org/about-us/licenses/)、[對應版本原始碼](https://download.documentfoundation.org/libreoffice/src/26.8.2/)。
+- pypdfium2／PDFium：Apache-2.0 或 BSD-3-Clause 與其第三方元件授權；隨發行物保留套件授權資料。[pypdfium2 licensing](https://pypdfium2.readthedocs.io/en/stable/README.html#licensing)、[PDFium source](https://pdfium.googlesource.com/pdfium/)。
+- Pillow（HPND 等適用授權）、python-docx（MIT）、lxml（BSD-3-Clause 及 libxml2／libxslt 適用授權）、olefile（BSD）：使用未修改的 Python 套件；版本與雜湊見依賴清單。[Pillow](https://github.com/python-pillow/Pillow)、[python-docx](https://github.com/python-openxml/python-docx)、[lxml](https://github.com/lxml/lxml)、[olefile](https://github.com/decalage2/olefile)。
 - yt-dlp：原始專案採 Unlicense；官方 Windows 執行檔包含其他元件，其完整授權以該發行版本的第三方聲明為準。[專案與授權](https://github.com/yt-dlp/yt-dlp)、[第三方元件](https://github.com/yt-dlp/yt-dlp/blob/master/THIRD_PARTY_LICENSES.txt)。EJS 隨所選官方執行檔配置，依該發行版本的適用授權。
 - Deno：MIT 及其第三方元件適用授權。[授權與原始碼](https://github.com/denoland/deno)。
 - FFmpeg / FFprobe：此建置使用 Gyan essentials GPL build，GPLv3 及其隨附文件見 `tools/LICENSE`。原始碼與對應建置資料：[Gyan builds](https://www.gyan.dev/ffmpeg/builds/)、[FFmpeg](https://ffmpeg.org/)。完整對應來源與第三方配置應與重新散布的具體版本一併封存；不能僅以一般首頁取代散布時必要的來源義務。

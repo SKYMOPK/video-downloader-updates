@@ -6,6 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
 (ASSETS / "icons").mkdir(parents=True, exist_ok=True)
 paths = {
+    "plus": '<path d="M12 5v14M5 12h14"/>',
     "download": '<path d="M12 3v12m-5-5 5 5 5-5M4 15v5h16v-5"/>',
     "video": '<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',
     "settings": '<path d="m9 3-1 3-3 1 1 3-2 2 2 2-1 3 3 1 1 3h6l1-3 3-1-1-3 2-2-2-2 1-3-3-1-1-3z"/><circle cx="12" cy="12" r="3"/>',

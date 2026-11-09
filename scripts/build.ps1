@@ -12,6 +12,8 @@ if (-not $SkipTests) {
     & .venv\Scripts\python.exe -m pytest -q
     if ($LASTEXITCODE -ne 0) { throw '測試失敗，停止建置' }
 }
+& .venv\Scripts\python.exe scripts\bootstrap_office.py
+if ($LASTEXITCODE -ne 0) { throw '文件轉換引擎準備失敗' }
 & .venv\Scripts\python.exe scripts\verify_tools.py
 if ($LASTEXITCODE -ne 0) { throw '依賴完整性檢查失敗' }
 $priorPath = $env:PATH
@@ -21,8 +23,10 @@ try {
     $env:PATH = "$projectRoot\.venv\Scripts;$pythonBase;$env:WINDIR\System32;$env:WINDIR"
     & .venv\Scripts\pyinstaller.exe --noconfirm --onefile --windowed --name app-updater --paths $projectRoot --distpath build\updater-dist --workpath build\updater-work --specpath build scripts\apply_update.py
     if ($LASTEXITCODE -ne 0) { throw '更新程式封裝失敗' }
-    & .venv\Scripts\pyinstaller.exe --noconfirm VideoDownloader.spec
+    & .venv\Scripts\pyinstaller.exe --clean --noconfirm VideoDownloader.spec
     if ($LASTEXITCODE -ne 0) { throw '封裝失敗' }
+    & .venv\Scripts\python.exe scripts\verify_frozen_source.py
+    if ($LASTEXITCODE -ne 0) { throw '封裝內容與原始碼不一致，停止發布' }
 } finally {
     $env:PATH = $priorPath
 }
@@ -35,7 +39,7 @@ if (-not $Compiler) {
     $Compiler = $candidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
 }
 if ($Compiler) {
-    & $Compiler "/DAppVersion=$appVersion" installer.iss
+    & $Compiler /Q "/DAppVersion=$appVersion" installer.iss
     if ($LASTEXITCODE -ne 0) { throw '安裝套件建置失敗' }
 } else {
     Write-Output '可攜版已產生於 dist\VideoDownloader；安裝包需 Inno Setup 6，使用 -Compiler 指定 ISCC.exe'
