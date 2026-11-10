@@ -1,6 +1,6 @@
 [project]
 name = "video-downloader"
-version = "0.3.1"
+version = "0.3.2"
 description = "Traditional Chinese Windows video downloader"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -9,10 +9,11 @@ dependencies = [
     "pypdfium2>=5,<6",
     "python-docx>=1.2,<2",
     "olefile>=0.47,<1",
+    "psutil>=7,<9",
 ]
 
 [dependency-groups]
-dev = ["pyinstaller>=6.16,<7", "pytest>=8,<10", "Pillow>=12,<14", "psutil>=7,<9"]
+dev = ["pyinstaller>=6.16,<7", "pytest>=8,<10", "Pillow>=12,<14"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

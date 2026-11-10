@@ -252,3 +252,39 @@ def test_cleanup_preserves_unrelated_siblings(qt,tmp_path,monkeypatch):
     assert docs.model.items[0]['state']=='completed'
     assert keep.read_text(encoding='utf-8')=='keep me'
     assert list(parent.iterdir())==[keep]
+
+
+def test_pages_are_files_and_workspaces_removed(qt,tmp_path,monkeypatch):
+    docs=queue(tmp_path,monkeypatch)
+    source=tmp_path/'多頁.tiff'
+    Image.new('RGB',(20,20),'red').save(source,save_all=True,append_images=[Image.new('RGB',(20,20),'blue')])
+    docs.addFiles([QUrl.fromLocalFile(str(source)).toString()])
+    docs.model.items[0]['output']='png'; docs.start()
+    assert not (tmp_path/'out'/'.video-downloader-documents').exists()
+    wait(qt,lambda: docs.activeCount==0)
+    assert docs.model.items[0]['state']=='completed', docs.model.items
+    assert sorted(p.name for p in (tmp_path/'out').iterdir())==['多頁（第 1 頁）.png','多頁（第 2 頁）.png']
+    assert not (tmp_path/'data'/'document-workspaces').exists()
+
+
+def test_stale_workspace_recovery_preserves_unmarked_and_live(tmp_path):
+    import os
+    import psutil
+    root=tmp_path/'document-workspaces'
+    stale=root/'stale'; live=root/'live'; other=root/'other'
+    for item in (stale,live,other): item.mkdir(parents=True)
+    atomic_json(stale/'.owner.json',{'app':'VideoDownloader','task':'stale','pid':os.getpid(),'created':0})
+    atomic_json(live/'.owner.json',{'app':'VideoDownloader','task':'live','pid':os.getpid(),'created':psutil.Process().create_time()})
+    (other/'personal.txt').write_text('keep')
+    assert module.clean_document_workspaces(root)
+    assert not stale.exists() and live.exists() and (other/'personal.txt').exists()
+
+
+def test_cleanup_failure_is_reported(tmp_path,monkeypatch):
+    import os
+    root=tmp_path/'document-workspaces'; stale=root/'stale'; stale.mkdir(parents=True)
+    atomic_json(stale/'.owner.json',{'app':'VideoDownloader','task':'stale','pid':os.getpid(),'created':0})
+    def blocked(path): raise PermissionError('locked')
+    monkeypatch.setattr(module.shutil,'rmtree',blocked)
+    assert not module.clean_document_workspaces(root)
+    assert stale.exists()

@@ -4,7 +4,9 @@ import os
 from pathlib import Path
 import shutil
 import sys
+import tempfile
 import uuid
+import psutil
 
 from PySide6.QtCore import QAbstractListModel, QModelIndex, QObject, Property, Qt, QTimer, QUrl, Signal, Slot
 from PySide6.QtGui import QDesktopServices
@@ -18,6 +20,43 @@ from .storage import DATA, ROOT, atomic_json, read_json, publish, safe_filename,
 STATES = {'draft':'待轉換', 'queued':'等待中', 'converting':'轉換中', 'cancelling':'停止中',
           'completed':'已完成', 'failed':'未完成', 'cancelled':'已取消'}
 ACTIVE = {'queued', 'converting', 'cancelling'}
+
+
+def clean_document_workspaces(root):
+    """Remove only marked jobs belonging to processes that no longer exist."""
+    root = Path(root)
+    if not root.exists(): return True
+    ok = True
+    try: entries = list(root.iterdir())
+    except OSError: return False
+    for work in entries:
+        if not work.is_dir() or work.is_symlink(): continue
+        marker = read_json(work/'.owner.json', {})
+        if not isinstance(marker, dict) or marker.get('app') != 'VideoDownloader' or marker.get('task') != work.name: continue
+        try:
+            process = psutil.Process(marker['pid'])
+            if abs(process.create_time()-marker['created']) < 0.01: continue
+        except psutil.NoSuchProcess: pass
+        except (psutil.Error, KeyError, TypeError, ValueError):
+            ok = False; continue
+        try: shutil.rmtree(work)
+        except OSError: ok = False
+    try: root.rmdir()
+    except OSError: pass
+    return ok
+
+
+def publish_document(source, folder, title):
+    # Stage on the destination volume so publication remains atomic across drives.
+    fd, name = tempfile.mkstemp(prefix='.vd-', suffix=source.suffix, dir=folder)
+    staged = Path(name)
+    try:
+        with os.fdopen(fd, 'wb') as target, source.open('rb') as original:
+            shutil.copyfileobj(original, target)
+            target.flush(); os.fsync(target.fileno())
+        return publish(staged, folder, title, '文件')
+    finally:
+        staged.unlink(missing_ok=True)
 
 
 class DocumentModel(QAbstractListModel):
@@ -65,6 +104,8 @@ class Documents(QObject):
         self.model = DocumentModel(self)
         self.worker = None
         self._error = ''
+        if not clean_document_workspaces(DATA/'document-workspaces'):
+            self._error = '部分文件轉換暫存資料無法清除，請關閉其他程式後重新啟動 App。'
         config = read_json(DATA/'document-settings.json', {})
         self._folder = config.get('folder', str(Path.home()/'Downloads'/'文件轉換')) if isinstance(config,dict) else str(Path.home()/'Downloads'/'文件轉換')
         if not isinstance(self._folder,str) or not self._folder.strip(): self._folder=str(Path.home()/'Downloads'/'文件轉換')
@@ -210,14 +251,17 @@ class Documents(QObject):
         if self.worker or self.closing: return
         task=next((t for t in self.model.items if t['state']=='queued'),None)
         if not task: self.idle.emit(); return
+        work = None
         try:
             folder=Path(task['folder']); folder.mkdir(parents=True,exist_ok=True)
-            # Work on the destination volume so final publication is atomic.
-            work=folder/'.video-downloader-documents'/uuid.uuid4().hex
+            work=DATA/'document-workspaces'/uuid.uuid4().hex
             work.mkdir(parents=True)
-            atomic_json(work/'.owner.json', {'app':'VideoDownloader','task':task['id']})
+            atomic_json(work/'.owner.json', {'app':'VideoDownloader','task':work.name, 'pid':os.getpid(), 'created':psutil.Process().create_time()})
             atomic_json(work/'job.json', {'sources':task['sources'],'output':task['output']})
         except OSError:
+            if work and work.is_dir():
+                try: shutil.rmtree(work)
+                except OSError: self.message.emit('轉換暫存資料無法清除，請檢查 App 資料夾權限。')
             task.update(state='failed',detail='輸出位置無法寫入，請選擇其他資料夾再試'); self.refresh(); QTimer.singleShot(0,self.schedule); return
         task.update(state='converting',detail='正在準備轉換')
         args=[] if getattr(sys,'frozen',False) else [str(ROOT/'main.py')]
@@ -244,20 +288,24 @@ class Documents(QObject):
                     if any(not p.is_relative_to(output_root) or not p.is_file() or p.is_symlink() for p in paths): raise OSError('輸出檔案驗證失敗')
                     title=Path(task['sources'][0]).stem
                     if len(task['sources'])>1: title+='（合併）'
-                    directory=bool(result.get('directory'))
-                    target=publish_directory(output_root,folder,title+'（'+task['output'].upper()+'）') if directory else publish(paths[0],folder,title,'文件')
-                    task.update(state='completed',detail='已驗證並儲存至輸出位置',path=target,directory=directory)
+                    multiple=bool(result.get('directory'))
+                    saved=[]
+                    for index, path in enumerate(paths, 1):
+                        saved.append(publish_document(path,folder,f'{title}（第 {index} 頁）' if multiple else title))
+                    target=str(folder) if multiple else saved[0]
+                    task.update(state='completed',detail=f'已儲存 {len(saved)} 個檔案至輸出位置' if multiple else '已驗證並儲存至輸出位置',path=target,directory=multiple)
                 else:
                     error=result.get('error') if isinstance(result,dict) else None
                     task.update(state='failed',detail=error or ('轉換超過時間上限，已安全停止' if '逾時' in output else '轉換程序未完成，請檢查檔案與可用記憶體後重試'))
-            except OSError as exc: task.update(state='failed',detail=f'無法儲存結果：{exc}')
+            except OSError as exc: task.update(state='failed',detail=f'無法完整儲存結果：{exc}；已儲存的檔案請至輸出位置確認')
             finally:
                 # Delete only this freshly-created, marked workspace inside its expected parent.
-                if work.parent==folder/'.video-downloader-documents' and read_json(work/'.owner.json',{}).get('task')==task['id']:
+                if work.parent==DATA/'document-workspaces' and read_json(work/'.owner.json',{}).get('task')==work.name:
                     try:
                         shutil.rmtree(work)
-                        # Remove only an empty parent; preserve unrelated files.
-                        work.parent.rmdir()
+                    except OSError:
+                        self.message.emit('轉換暫存資料無法清除，App 下次啟動時會再嘗試。')
+                    try: work.parent.rmdir()
                     except OSError: pass
                 self.worker=None; worker.deleteLater(); self.refresh(); self.idle.emit(); QTimer.singleShot(0,self.schedule)
         worker.line.connect(line); worker.done.connect(done)
