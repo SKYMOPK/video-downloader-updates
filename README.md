@@ -4,11 +4,11 @@ Windows 繁體中文影音與文件工具：下載 YouTube／Shorts 影音，也
 
 ## 下載 App
 
-[![下載 Windows 版](assets/download-windows.svg)](https://github.com/SKYMOPK/video-downloader-updates/releases/download/v0.3.1/VideoDownloader-0.3.1-win64-setup.exe)
+[![下載 Windows 版](assets/download-windows.svg)](https://github.com/SKYMOPK/video-downloader-updates/releases/download/v0.3.2/VideoDownloader-0.3.2-win64-setup.exe)
 
 **點上方藍色按鈕，下載後開啟安裝檔即可。**
 
-目前版本：**0.3.1** · 一般使用者只需下載這一個安裝檔，不必下載 ZIP、原始碼或其他檔案。
+目前版本：**0.3.2** · 一般使用者只需下載這一個安裝檔，不必下載 ZIP、原始碼或其他檔案。
 
 安裝完成後，日後可在 App 內按「檢查更新」。
 
@@ -42,7 +42,7 @@ Windows 繁體中文影音與文件工具：下載 YouTube／Shorts 影音，也
 - Word、ODT、RTF 與 TXT 的合理格式轉換。
 - 圖片轉檔、調整順序並合併 PDF；PDF 轉逐頁圖片或擷取純文字。
 - 批次處理、取消、結果驗證及同名保護；原始檔案保留。
-- 轉換結束會清除已空的暫存資料夾，旁邊的其他檔案不會刪除。
+- 轉換工作區位於 App 資料位置，輸出位置不會建立暫存資料夾；多頁圖片直接儲存在輸出位置。轉換結束後清理暫存，異常中斷後會在下次啟動時嘗試清理。
 
 文件轉換在本機進行，無須上傳文件或另裝 Office。第一次使用 Office 轉換時會在背景準備內建引擎，約需 1.8 GB 可用空間，開啟 App 不等待此步驟。
 
